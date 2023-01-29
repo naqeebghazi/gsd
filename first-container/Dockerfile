@@ -17,6 +17,7 @@ WORKDIR /usr/src/app
 
 # Install dependencies from packages.json
 RUN npm install
+RUN curl -fsSL https://get.docker.com | sh
 
 # Command for container to execute
 ENTRYPOINT [ "node", "app.js" ]

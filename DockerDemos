@@ -1,0 +1,249 @@
+# Docker
+
+```powershell
+
+docker login
+
+#build an image from files in folder youre in
+docker image build -t naqeebghazi/gsd:first-container .
+
+#lists available images
+docker image ls
+
+#push local image to dockerhub registry
+docker image push naqeebghazi/gsd:first-container
+
+#delete local image
+docker image rm naqeebghazi/gsd:first-container
+
+#run a container:
+docker run -d --name webNG -p 8000:8080 naqeebghazi/gsd:first-container
+#This creates a container from the image 
+#(Images= buildtime constructs / Containers= runtime constructs)
+#if not from dockerhub repo, you must put extra URL before image name. -d means detached from terminal. attached to terminal = -it. This means once the container is up and running, you will immedaitely go into the container's terminal eg:
+			docker run -it --name testNG alpine sh
+			#to exit but keep the container running: Ctrl+P+Q
+			
+#shows currently running containers:
+docker container ls
+
+#shows running container history:
+docker container ls -a
+
+#to go into a container and execute shell commands:
+docker exec -it NAMEofCONTAINER sh
+
+#stop a container:
+docker container stop webNG
+#this send a SIGTERM signal to the app in the container to gracefully shutdown (~10sec), thereafter it sends a SIGKILL to terminate. 
+
+#delete container completely
+docker container rm webNG
+
+#removes untagged and dangling (not associated with containers) images:
+docker system prune
+
+#removes any stopped containers and all unused images:
+docker system prune -a
+```
+
+![package.json = app dependencies. installed via ‘npm install’
+app.js = actual app
+views = how the app is laid out?
+static = contains images
+dockerfile =  instrcutions to build an image
+](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6c5248a7-bebf-4ad5-869d-21e5ece6146c/Untitled.png)
+
+package.json = app dependencies. installed via ‘npm install’
+app.js = actual app
+views = how the app is laid out?
+static = contains images
+dockerfile =  instrcutions to build an image
+
+![Dockerfile. The blue boxes show te order of the build as you execute each RED command from top to bottom](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/d01140b7-7d59-4ba0-bea2-962145f1fe9c/Untitled.png)
+
+Dockerfile. The blue boxes show te order of the build as you execute each RED command from top to bottom
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4eb9429d-92e5-4d15-80d4-c72f958a42fb/Untitled.png)
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/50aee1d8-5f07-4cbd-9d67-3e61cec863dd/Untitled.png)
+
+## Multicontainer
+
+```powershell
+#start building the app using docker-compose:
+docker-compose up -d
+# -d = detached in the background, not picking this -d means terminal will be disrupted. 
+#docker-compose always expects this config file to be called docker-compose.yml. but you can name it differently, but need to write filename in the command
+
+#stop docker compose multi-containers
+docker compose down
+```
+
+![
+This file shows a multi-container (microservices) app. It shows a declarative code for the desired state: 
+Web front end (web-fe: the python flash app). 
+   build: . = calls docker file to build image.
+   command: python [app.py](http://app.py) = the app that runs once the container starts
+   ports:
+      - target: 5000 = container port
+        published: 5000 = docker host
+   network: = attaches to this network
+      - counter-net
+   volumes: = mounting to this vol.
+      - type: volume
+        source: counter-vol
+        target: /code
+   redis: = caching service on same network as container
+networks: = tells docker to create a network
+   counter-net:
+
+volume: = tells docker to create a volume]
+](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/8d18b972-425b-4a34-94a6-9bce76594bd2/Untitled.png)
+
+This file shows a multi-container (microservices) app. It shows a declarative code for the desired state: 
+Web front end (web-fe: the python flash app). 
+   build: . = calls docker file to build image.
+   command: python [app.py](http://app.py) = the app that runs once the container starts
+   ports:
+      - target: 5000 = container port
+        published: 5000 = docker host
+   network: = attaches to this network
+      - counter-net
+   volumes: = mounting to this vol.
+      - type: volume
+        source: counter-vol
+        target: /code
+   redis: = caching service on same network as container
+networks: = tells docker to create a network
+   counter-net:
+
+volume: = tells docker to create a volume]
+
+Docker compose 
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/5efb376b-1972-498a-bbbd-5f2d85a4e908/Untitled.png)
+
+Dockerfile = requirements to build any container images
+
+[aap.py](http://aap.py) = app file that talks to a redis cache
+
+requirements.txt = lists dependencies
+
+docker-compose.yml = file defining services, networks, and volumes for a ***Docker***
+ application. aids in defining multi-container applications. Its a declarative file. It describes all the features of the app which docker then builds. saves time on the cmd line as everything is documented. its a source of truth for the app. 
+
+## Docker Swarm
+
+secure highly available cluster
+
+Should have odd number of manager nodes and worker nodes (all collectively known as a swarm).
+
+Managers: host control pane features (scheduling, persisting cluster state ∴ are very important to swarm health). Odd number of managers avoids a ‘split-brain condition’ in a split-network architecture; updates to cluster are frozen when neither side knows they have the majority. 
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/363130ea-c203-4d68-8d28-e059001b0510/Untitled.png)
+
+Swarm-mode in docker desktop: possible but you are limited to only one manager node and ∴ no HA. 
+
+Swarm mode enables docker services. Each docker service maps onto an app microservice. 
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/b4e3810e-f201-4958-a4ad-44bea12efa70/Untitled.png)
+
+```powershell
+#this cmd initiates the swarm bu initialising a manager role on the node in which it is run:
+docker swarm init
+#the response to this is similar to the following output:
+To add a worker to this swarm, run the following command:
+		docker swarm join --token SWMTKN-1-2m5jwmjovwnkmcu47b5ttaeyeo8hi21k3wbnz2sqdhcc3flwo9-c98rcnilnuin99sp3xpyhko14 192.168.65.4:2377
+
+#To add a manager to this swarm, run and follow the instructions:
+		docker swarm join-token manager
+#copy/paste this into other manager nodes of your choosing
+
+#to view all running manager nodes:
+docker node ls
+
+#to add worker nodes, run this in the chosen worker node:
+docker swarm join --token SWMTKN-1-2m5jwmjovwnkmcu47b5ttaeyeo8hi21k3wbnz2sqdhcc3flwo9-c98rcnilnuin99sp3xpyhko14 192.168.65.4:2377 #which is the same as above
+
+Always specify the IP address with the flag (tell docker which host ip to use for the cluster communication: 
+	--advertise-addr=
+#in AWS, use the instances private IP. 
+To have three managers for HA (high availablity) use:
+	docker swarm join-token manager
+```
+
+A d*ocker service object* maps to a microservice app.
+
+To scale up a microservice to 4 
+
+```powershell
+docker service scale reporting=4
+```
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/fb4dbafa-11a2-4286-8155-2ab951a6bc8f/Untitled.png)
+
+This image shows 8 microservices and so there will be 8 docker services too, one for each. 
+
+Imperative method: using the docker cmd to manage all these services - usually done declaratively via `docker stack` command and a declarative YAML file. Do the following in swarm mode:
+
+```powershell
+docker service create --name webNG -p 8080:8080 --replicas 4 naqeebghazi/gsd:samurai
+#you will get similar to the following image:
+```
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/9ced3ef4-93a1-43ef-b549-b4c3cc8667d5/Untitled.png)
+
+`docker container ls` allows you to see containers running on local node but doesnt show which nodes the services are running on. 
+
+So, run `docker service ps` which can be run on any manager and see all replicas + can see the nodes that each replica is running on:
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/009ca1d8-7008-4938-b08e-d6b58233da5d/Untitled.png)
+
+```powershell
+#to scale up the containers to more eg. 4:
+docker service scale web=4
+
+#To remove containers, list via:
+docker container ls
+#then select the IDs and remove via:
+docker container rm e1ecfbca9bda
+
+#to remove docker swarm stack:
+docker service rm web
+```
+
+A YAML file makes it easier to manage docker swarms
+
+Often, a docker-compose like file in a swarm setting is called a ******************stack.****************** Stacks on a swarm do not support building images using dockerfiles ad hoc. So, you need to pre-create the necessary image and then reference the image in the stack. 
+
+```powershell
+docker stack deploy -c docker-compose.yml counters
+
+#to list running stacks:
+docker stack ls
+
+#more details on each stack:
+docker stack services NAMEofSTACK
+
+#list all services in the stack 'counters':
+docker stack ps counters
+```
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/13860a66-0cc4-4224-81f5-8f5a7c3b3629/Untitled.png)
+
+`docker stack ls` gives:
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/937df1ef-9d99-40b3-a447-19528878b480/Untitled.png)
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/ae894909-e334-4fad-a17e-9d29bab587e9/Untitled.png)
+
+To make changes to the stack, edit the YAML file. 
+
+Then redeploy the YAML file:
+
+```powershell
+docker stack deploy -c docker-compose.yml NAMEofSTACK (eg. counters)
+```
+
+Doing it this way means less typing and a simple yaml file deploys our desired state.

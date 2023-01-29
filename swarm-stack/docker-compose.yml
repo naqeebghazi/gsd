@@ -1,10 +1,10 @@
 version: "3.8"
 services:
   web-fe:
-    image: nigelpoulton/gsd:swarm-stack
+    image: naqeebghazi/gsd:swarm-stack
     command: python app.py
     deploy:
-      replicas: 10
+      replicas: 8
     ports:
       - target: 8080
         published: 5000
