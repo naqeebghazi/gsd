@@ -164,7 +164,7 @@ To add a worker to this swarm, run the following command:
 docker node ls
 
 #to add worker nodes, run this in the chosen worker node:
-docker swarm join --token SWMTKN-1-2m5jwmjovwnkmcu47b5ttaeyeo8hi21k3wbnz2sqdhcc3flwo9-c98rcnilnuin99sp3xpyhko14 192.168.65.4:2377 #which is the same as above
+docker swarm join --token xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 192.168.xx.x:xxxx #which is the same as above
 
 Always specify the IP address with the flag (tell docker which host ip to use for the cluster communication: 
 	--advertise-addr=
